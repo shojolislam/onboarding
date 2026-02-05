@@ -1,0 +1,149 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* =============================================================================
+   THEME TOKENS  (driven by data-theme on <main>)
+   ============================================================================= */
+
+[data-theme="dark"] {
+  --ob-bg: #0a0a0a;
+  --ob-text: rgba(255, 255, 255, 0.9);
+  --ob-text-secondary: rgba(255, 255, 255, 0.7);
+  --ob-text-tertiary: rgba(255, 255, 255, 0.5);
+  --ob-text-muted: rgba(255, 255, 255, 0.25);
+  --ob-border: rgba(255, 255, 255, 0.08);
+  --ob-muted: rgba(255, 255, 255, 0.1);
+  --ob-muted-hover: rgba(255, 255, 255, 0.15);
+  --ob-surface: rgba(255, 255, 255, 0.03);
+  --ob-surface-hover: rgba(255, 255, 255, 0.06);
+  --ob-toggle-active: rgba(255, 255, 255, 0.3);
+  --ob-input-bg: rgba(255, 255, 255, 0.04);
+  --ob-input-bg-focus: rgba(255, 255, 255, 0.06);
+  --ob-input-border: rgba(255, 255, 255, 0.08);
+  --ob-input-border-focus: rgba(255, 255, 255, 0.2);
+  --ob-input-text: rgba(255, 255, 255, 0.9);
+  --ob-input-placeholder: rgba(255, 255, 255, 0.2);
+  --ob-btn-bg: rgba(255, 255, 255, 0.9);
+  --ob-btn-bg-hover: rgba(255, 255, 255, 1);
+  --ob-btn-text: #0a0a0a;
+}
+
+[data-theme="light"] {
+  --ob-bg: #ffffff;
+  --ob-text: rgba(0, 0, 0, 0.9);
+  --ob-text-secondary: rgba(0, 0, 0, 0.65);
+  --ob-text-tertiary: rgba(0, 0, 0, 0.45);
+  --ob-text-muted: rgba(0, 0, 0, 0.25);
+  --ob-border: rgba(0, 0, 0, 0.08);
+  --ob-muted: rgba(0, 0, 0, 0.06);
+  --ob-muted-hover: rgba(0, 0, 0, 0.1);
+  --ob-surface: rgba(0, 0, 0, 0.02);
+  --ob-surface-hover: rgba(0, 0, 0, 0.05);
+  --ob-toggle-active: rgba(0, 0, 0, 0.25);
+  --ob-input-bg: rgba(0, 0, 0, 0.03);
+  --ob-input-bg-focus: rgba(0, 0, 0, 0.05);
+  --ob-input-border: rgba(0, 0, 0, 0.1);
+  --ob-input-border-focus: rgba(0, 0, 0, 0.2);
+  --ob-input-text: rgba(0, 0, 0, 0.9);
+  --ob-input-placeholder: rgba(0, 0, 0, 0.3);
+  --ob-btn-bg: rgba(0, 0, 0, 0.9);
+  --ob-btn-bg-hover: rgba(0, 0, 0, 1);
+  --ob-btn-text: #ffffff;
+}
+
+/* =============================================================================
+   ONBOARDING LAYOUT
+   ============================================================================= */
+
+.onboarding-panel {
+  background: var(--ob-bg);
+  transition: background-color 0.3s ease;
+}
+
+/* =============================================================================
+   ONBOARDING FORM STYLES
+   ============================================================================= */
+
+.onboarding-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--ob-input-border);
+  background: var(--ob-input-bg);
+  color: var(--ob-input-text);
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.onboarding-input::placeholder {
+  color: var(--ob-input-placeholder);
+}
+
+.onboarding-input:focus {
+  border-color: var(--ob-input-border-focus);
+  background: var(--ob-input-bg-focus);
+}
+
+.onboarding-button {
+  width: 100%;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--ob-btn-bg);
+  color: var(--ob-btn-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.onboarding-button:hover {
+  background: var(--ob-btn-bg-hover);
+}
+
+.onboarding-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.onboarding-button:disabled:hover {
+  background: var(--ob-btn-bg);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.2);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.3);
+}
