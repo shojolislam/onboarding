@@ -479,15 +479,7 @@ function Particles({
     prevFormProgressRef.current = formProgress
     progressPulseRef.current *= 0.985
 
-    // Lerp step parameters
-    const progressBoost = formProgress * 12
-    const lr = 0.006
-    lerpedRadius.current += (stepConfig.radius + progressBoost - lerpedRadius.current) * lr
-    lerpedBreathe.current += (stepConfig.breathe - lerpedBreathe.current) * lr
-    const targetOrbitSpeed = stepConfig.orbitSpeedMultiplier * (1 + formProgress * 0.2)
-    lerpedOrbitSpeed.current += (targetOrbitSpeed - lerpedOrbitSpeed.current) * lr
-
-    // Convergence state
+    // Convergence state (calculate first so we can use it for radius)
     const hasName = assistantName.trim().length > 0
     const hadName = prevAssistantNameRef.current.trim().length > 0
     if (hasName && !hadName) {
@@ -497,6 +489,16 @@ function Particles({
     const shapeGoal = hasName ? 1 : 0
     shapeProgressRef.current += (shapeGoal - shapeProgressRef.current) * 0.006
     prevAssistantNameRef.current = assistantName
+
+    // Lerp step parameters
+    const progressBoost = formProgress * 12
+    const lr = 0.006
+    // Shrink the circle as particles converge to inner shape (sync with convergence)
+    const convergenceShrink = shapeProgressRef.current * 50 // shrink by up to 50 as shape forms
+    lerpedRadius.current += (stepConfig.radius + progressBoost - convergenceShrink - lerpedRadius.current) * lr
+    lerpedBreathe.current += (stepConfig.breathe - lerpedBreathe.current) * lr
+    const targetOrbitSpeed = stepConfig.orbitSpeedMultiplier * (1 + formProgress * 0.2)
+    lerpedOrbitSpeed.current += (targetOrbitSpeed - lerpedOrbitSpeed.current) * lr
 
     // Final sphere convergence
     const finalGoal = isComplete ? 1 : 0

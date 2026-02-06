@@ -100,7 +100,7 @@ export const STEP_CONFIGS: Record<number, StepConfig> = {
     wanderAmplitudeMultiplier: 1.8,     // more wanderers drifting out
   },
   5: {
-    radius: 145,                        // medium circle for permissions step
+    radius: 120,                        // smaller circle for permissions step
     breathe: 3.5,
     orbitSpeedMultiplier: 1.0,
     chargeRateMultiplier: 1.5,
