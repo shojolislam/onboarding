@@ -41,8 +41,8 @@ body {
   --ob-input-border-focus: #4ade80;
   --ob-input-text: rgba(255, 255, 255, 0.9);
   --ob-input-placeholder: rgba(255, 255, 255, 0.3);
-  --ob-btn-primary-bg: #4ade80;
-  --ob-btn-primary-bg-hover: #22c55e;
+  --ob-btn-primary-bg: #ffffff;
+  --ob-btn-primary-bg-hover: #e5e5e5;
   --ob-btn-primary-text: #0a0a0a;
   --ob-btn-bg: rgba(255, 255, 255, 0.9);
   --ob-btn-bg-hover: rgba(255, 255, 255, 1);
@@ -60,15 +60,15 @@ body {
   --ob-muted-hover: #e8e8e5;
   --ob-surface: #ffffff;
   --ob-surface-hover: #fafafa;
-  --ob-toggle-active: #3d6b4f;
+  --ob-toggle-active: #001F08;
   --ob-input-bg: #ffffff;
   --ob-input-bg-focus: #ffffff;
   --ob-input-border: #d1d5db;
-  --ob-input-border-focus: #3d6b4f;
+  --ob-input-border-focus: #001F08;
   --ob-input-text: #1a1a1a;
   --ob-input-placeholder: #9ca3af;
-  --ob-btn-primary-bg: #3d6b4f;
-  --ob-btn-primary-bg-hover: #345a43;
+  --ob-btn-primary-bg: #001F08;
+  --ob-btn-primary-bg-hover: #003311;
   --ob-btn-primary-text: #ffffff;
   --ob-btn-bg: rgba(0, 0, 0, 0.9);
   --ob-btn-bg-hover: rgba(0, 0, 0, 1);
@@ -80,8 +80,7 @@ body {
    ============================================================================= */
 
 .onboarding-panel {
-  background: var(--ob-bg);
-  transition: background-color 0.3s ease;
+  background: transparent;
 }
 
 /* =============================================================================

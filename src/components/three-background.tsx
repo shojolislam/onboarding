@@ -45,26 +45,37 @@ const createGlowTexture = (): THREE.Texture => {
 }
 
 // Generate volumetric sphere positions (particles distributed throughout the volume, not just surface)
+// Creates a true 3D distribution with particles inside the sphere, not just on the shell
 function generateFinalSphere(count: number, radius: number): { x: number; y: number; z: number }[] {
   const points: { x: number; y: number; z: number }[] = []
-  const goldenAngle = Math.PI * (3 - Math.sqrt(5))
 
   for (let i = 0; i < count; i++) {
-    // Use cube root for uniform volume distribution (not just surface)
-    const t = i / (count - 1)
-    const r = Math.cbrt(0.15 + t * 0.85) * radius // Range from 15% to 100% of radius
+    // Use cube root for uniform volume distribution
+    // This ensures particles are evenly distributed through the volume
+    const u = Math.random()
+    const v = Math.random()
+    const w = Math.random()
 
-    // Fibonacci-like angular distribution
-    const y = 1 - (i / (count - 1)) * 2 // -1 to 1
-    const radiusAtY = Math.sqrt(1 - y * y)
-    const theta = goldenAngle * i
+    // Spherical coordinates with volumetric distribution
+    const theta = u * 2 * Math.PI
+    const phi = Math.acos(2 * v - 1)
+    // Cube root gives uniform volume distribution (not clustered at center)
+    const r = Math.cbrt(w) * radius
 
     points.push({
-      x: Math.cos(theta) * radiusAtY * r,
-      y: y * r,
-      z: Math.sin(theta) * radiusAtY * r,
+      x: r * Math.sin(phi) * Math.cos(theta),
+      y: r * Math.sin(phi) * Math.sin(theta),
+      z: r * Math.cos(phi),
     })
   }
+
+  // Sort by radius for layered convergence effect (inner particles first)
+  points.sort((a, b) => {
+    const rA = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z)
+    const rB = Math.sqrt(b.x * b.x + b.y * b.y + b.z * b.z)
+    return rA - rB
+  })
+
   return points
 }
 
@@ -177,8 +188,8 @@ function Particles({
 
   // Theme
   const targetBgRef = useRef(new THREE.Color(0x0a0a0a))
-  useEffect(() => { targetBgRef.current = new THREE.Color(isDark ? 0x0a0a0a : 0xffffff) }, [isDark])
-  useEffect(() => { scene.background = new THREE.Color(isDark ? 0x0a0a0a : 0xffffff) }, [scene, isDark])
+  useEffect(() => { targetBgRef.current = new THREE.Color(isDark ? 0x0a0a0a : 0xf7f6f3) }, [isDark])
+  useEffect(() => { scene.background = new THREE.Color(isDark ? 0x0a0a0a : 0xf7f6f3) }, [scene, isDark])
 
   // Shape variants
   const shapeCount = Math.floor(PARTICLE_CONFIG.particleCount * PARTICLE_CONFIG.shapeParticlePercent)
@@ -394,8 +405,8 @@ function Particles({
       pointsMaterialRef.current.color.set(isDark ? "#ffffff" : "#1a1a1a")
     }
     if (glowMaterialRef.current) {
-      glowMaterialRef.current.opacity = 0.12
-      glowMaterialRef.current.color.set(isDark ? "#333333" : "#4a4a4a")
+      glowMaterialRef.current.opacity = isDark ? 0.12 : 0
+      glowMaterialRef.current.color.set("#333333")
     }
 
     // -------------------------------------------------------------------
@@ -569,7 +580,7 @@ function Particles({
     const pulseKick = progressPulseRef.current * 3
 
     // Line parameters - like a string tied at both ends, loose in the middle
-    const lineWidth = 400 // Total width of the line
+    const lineWidth = 700 // Total width of the line - wide for full viewport impact
 
     for (let i = 0; i < PARTICLE_CONFIG.particleCount; i++) {
       const p = particlesData[i]
@@ -631,8 +642,16 @@ function Particles({
       const circleX = Math.cos(curAngle) * pRadius
       const circleY = Math.sin(curAngle) * pRadius
 
-      // Blend between line and circle
-      const easedTransition = 1 - Math.pow(1 - lineToCircle, 3) // Ease out cubic
+      // Center-first transition: particles in the middle of the line transition first
+      // Distance from center (0 = center, 1 = edges)
+      const distFromCenter = Math.abs(strandT - 0.5) * 2
+      // Delay based on distance from center (center = 0 delay, edges = max delay)
+      const transitionDelay = distFromCenter * 0.6
+      // Adjusted progress with delay
+      const delayedLineToCircle = Math.max(0, (lineToCircle - transitionDelay) / (1 - transitionDelay + 0.001))
+      const clampedTransition = Math.min(delayedLineToCircle, 1)
+      const easedTransition = 1 - Math.pow(1 - clampedTransition, 3) // Ease out cubic
+
       let finalX = lineX + (circleX - lineX) * easedTransition
       let finalY = lineY + (circleY - lineY) * easedTransition
       let finalZ = lineZ * (1 - easedTransition)
@@ -715,11 +734,14 @@ function Particles({
         sizeMul = 1 + 0.4 * Math.sin(elapsed * 4 + ang * 3) + 0.15 * Math.sin(elapsed * 7 + ang * 5)
       }
 
+      // Shift animation up on screen
+      const yOffset = 100
+
       positions[i3] = finalX
-      positions[i3 + 1] = finalY
+      positions[i3 + 1] = finalY + yOffset
       positions[i3 + 2] = finalZ
       glowPositions[i3] = finalX
-      glowPositions[i3 + 1] = finalY
+      glowPositions[i3 + 1] = finalY + yOffset
       glowPositions[i3 + 2] = finalZ - 1
 
       const restR = p.restRadius + (lerpedRadius.current - PARTICLE_CONFIG.baseRadius)
@@ -775,7 +797,7 @@ export function ThreeBackground({
 }) {
   return (
     <div className="absolute inset-0">
-      <Canvas camera={{ position: [0, 0, 400], fov: 75 }} gl={{ antialias: true, alpha: false }} dpr={[1, 2]}>
+      <Canvas camera={{ position: [0, 0, 300], fov: 90 }} gl={{ antialias: true, alpha: false }} dpr={[1, 2]}>
         <Particles
           onboardingStep={onboardingStep} assistantName={assistantName}
           isProcessing={isProcessing} isComplete={isComplete} isDark={isDark}

@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
+import { ArrowRight, ArrowLeft } from "lucide-react"
 
 interface StepAssistantProps {
   assistantName: string
@@ -28,22 +29,20 @@ function Toggle({
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="flex items-center justify-between rounded-lg border border-[var(--ob-border)] bg-[var(--ob-surface)] px-4 py-4 transition-colors hover:bg-[var(--ob-surface-hover)] text-left"
+      className="flex items-center justify-between py-4 transition-colors text-left group"
     >
       <div className="flex flex-col items-start gap-0.5">
-        <span className="text-sm font-medium text-[var(--ob-text)]">{label}</span>
+        <span className="text-xl font-light text-[var(--ob-text)]">{label}</span>
         <span className="text-sm text-[var(--ob-text-tertiary)]">{description}</span>
       </div>
       <div
-        className={`relative h-6 w-11 rounded-full transition-colors shrink-0 ml-4 ${
-          checked ? "bg-[var(--ob-toggle-active)]" : "bg-[var(--ob-border)]"
+        className={`relative h-7 w-12 rounded-full transition-colors shrink-0 ml-4 ${
+          checked ? "bg-[var(--ob-btn-primary-bg)]" : "bg-[var(--ob-border)]"
         }`}
       >
         <motion.div
-          className={`absolute top-1 h-4 w-4 rounded-full transition-colors ${
-            checked ? "bg-white" : "bg-[var(--ob-text-muted)]"
-          }`}
-          animate={{ left: checked ? 22 : 4 }}
+          className="absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm"
+          animate={{ left: checked ? 24 : 4 }}
           transition={{ type: "spring", stiffness: 500, damping: 30 }}
         />
       </div>
@@ -63,6 +62,18 @@ export function StepAssistant({
   const [assistantName, setAssistantName] = useState(initialName)
   const [calendarAccess, setCalendarAccess] = useState(initialCalendar)
   const [emailAccess, setEmailAccess] = useState(initialEmail)
+  const [displayedText, setDisplayedText] = useState("")
+  const fullText = "Name your assistant"
+
+  // Typewriter effect
+  useEffect(() => {
+    if (displayedText.length < fullText.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(fullText.slice(0, displayedText.length + 1))
+      }, 50)
+      return () => clearTimeout(timeout)
+    }
+  }, [displayedText])
 
   const canProceed = assistantName.trim().length > 0
 
@@ -85,43 +96,29 @@ export function StepAssistant({
   return (
     <motion.form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-8"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
+      className="flex flex-col items-start gap-10 font-[family-name:var(--font-geist-sans)]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.4 }}
     >
-      {/* Header */}
-      <div>
-        <p className="text-sm font-medium text-[var(--ob-text-muted)] mb-2">
-          Your Assistant
-        </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-[var(--ob-text)]">
-          Name your assistant
-        </h2>
-      </div>
+      {/* Typewriter Title */}
+      <h2 className="text-5xl font-light tracking-tight text-[var(--ob-text)]">
+        {displayedText}
+      </h2>
 
       {/* Form fields */}
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-2">
-          <label htmlFor="assistantName" className="text-sm font-medium text-[var(--ob-text)]">
-            Assistant name <span className="text-[var(--ob-text-muted)]">*</span>
-          </label>
-          <input
-            id="assistantName"
-            type="text"
-            value={assistantName}
-            onChange={(e) => handleNameChange(e.target.value)}
-            placeholder="e.g. Atlas, Nova, Cortex"
-            className="onboarding-input"
-            autoFocus
-          />
-        </div>
+      <div className="w-full flex flex-col gap-8">
+        <input
+          type="text"
+          value={assistantName}
+          onChange={(e) => handleNameChange(e.target.value)}
+          placeholder="e.g. Atlas, Nova, Cortex"
+          className="w-full bg-transparent border-none outline-none text-4xl font-light text-[var(--ob-text)] placeholder:text-[var(--ob-text-muted)] py-4"
+          autoFocus
+        />
 
-        <div className="flex flex-col gap-3">
-          <span className="text-sm font-medium text-[var(--ob-text)]">
-            Permissions
-          </span>
+        <div className="flex flex-col divide-y divide-[var(--ob-border)]">
           <Toggle
             checked={calendarAccess}
             onChange={(val) => {
@@ -143,24 +140,27 @@ export function StepAssistant({
         </div>
       </div>
 
-      {/* Buttons */}
-      <div className="flex items-center gap-4 mt-4">
+      {/* Navigation buttons */}
+      <div className="flex items-center gap-4">
         {onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="onboarding-button-secondary"
+            className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--ob-border)] text-[var(--ob-text)] transition-colors hover:bg-[var(--ob-muted)]"
           >
-            Back
+            <ArrowLeft size={24} />
           </button>
         )}
-        <button
+        <motion.button
           type="submit"
           disabled={!canProceed}
-          className="onboarding-button flex-1"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--ob-btn-primary-bg)] text-[var(--ob-btn-primary-text)] transition-colors hover:bg-[var(--ob-btn-primary-bg-hover)] disabled:opacity-40"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: canProceed ? 1 : 0.4, scale: 1 }}
+          transition={{ duration: 0.3 }}
         >
-          Continue
-        </button>
+          <ArrowRight size={24} />
+        </motion.button>
       </div>
     </motion.form>
   )
