@@ -60,9 +60,10 @@ export function StepProfile({ name: initialName, onNext, onFieldChange }: StepPr
         type="text"
         value={name}
         onChange={(e) => handleNameChange(e.target.value)}
-        placeholder="Type your name..."
-        className="w-full bg-transparent border-none outline-none text-5xl font-light text-[var(--ob-text)] placeholder:text-[var(--ob-text-muted)] py-4"
+        placeholder="John Doe"
+        className="w-full bg-transparent border-none outline-none text-5xl font-light text-[var(--ob-text)] placeholder:text-[var(--ob-text-muted)] py-4 caret-[var(--ob-text)]"
         autoFocus
+        autoComplete="off"
       />
 
       {/* Arrow on far right */}

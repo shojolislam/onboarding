@@ -730,9 +730,9 @@ function Particles({
       }
     }
 
-    // Line-to-circle transition (organic, spontaneous)
+    // Line-to-circle transition (natural flowing motion)
     const lineToCircleTarget = onboardingStep >= 2 ? 1 : 0
-    lineToCircleProgressRef.current += (lineToCircleTarget - lineToCircleProgressRef.current) * 0.015
+    lineToCircleProgressRef.current += (lineToCircleTarget - lineToCircleProgressRef.current) * 0.018
     const lineToCircle = lineToCircleProgressRef.current
 
     // Render particles
@@ -787,17 +787,20 @@ function Particles({
       const circleX = Math.cos(curAngle) * pRadius
       const circleY = Math.sin(curAngle) * pRadius
 
-      // Spontaneous transition: each particle has its own random delay
-      // Use particle's breatheOffset as a stable random seed for consistent behavior
-      const randomDelay = (Math.sin(p.breatheOffset * 7.3) * 0.5 + 0.5) * 0.6 // 0 to 0.6 random delay
-      const delayedLineToCircle = Math.max(0, (lineToCircle - randomDelay) / (1 - randomDelay + 0.001))
-      const clampedTransition = Math.min(delayedLineToCircle, 1)
-      // Smooth easing for organic feel
-      const easedTransition = clampedTransition * clampedTransition * (3 - 2 * clampedTransition)
+      // Natural flowing transition: particles curve toward their circle position
+      // Each particle has unique timing based on its properties
+      const particleSpeed = 0.8 + p.orbitSpeed * 200 + Math.sin(p.breatheOffset) * 0.3
+      const adjustedProgress = Math.min(lineToCircle * particleSpeed, 1)
+      // Smooth cubic easing
+      const easedTransition = adjustedProgress * adjustedProgress * (3 - 2 * adjustedProgress)
+
+      // Add a slight arc/curve to the transition path for more organic movement
+      const arcHeight = Math.sin(easedTransition * Math.PI) * 15 * (1 - easedTransition)
+      const arcDirection = Math.sin(p.breatheOffset * 2) // random direction per particle
 
       let finalX = lineX + (circleX - lineX) * easedTransition
-      let finalY = lineY + (circleY - lineY) * easedTransition
-      let finalZ = lineZ * (1 - easedTransition)
+      let finalY = lineY + (circleY - lineY) * easedTransition + arcHeight * arcDirection
+      let finalZ = lineZ * (1 - easedTransition) + arcHeight * Math.cos(p.breatheOffset)
 
       // Inner shape convergence
       if (p.isShapeParticle && p.shapeIndex >= 0 && globalShape > 0.003) {
