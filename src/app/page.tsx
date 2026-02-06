@@ -70,91 +70,106 @@ export default function Home() {
 
   return (
     <main className="flex h-screen w-screen overflow-hidden" data-theme={isDark ? "dark" : "light"}>
-      {/* LEFT PANEL — Form */}
-      <div className="relative z-10 flex w-full flex-col justify-between px-8 py-10 md:w-[480px] md:min-w-[480px] md:px-12 onboarding-panel">
-        {/* Logo + theme toggle */}
-        <div className="flex items-center justify-between">
+      {/* LEFT PANEL — Form (50% width) */}
+      <div className="relative z-10 flex w-full flex-col md:w-1/2 onboarding-panel">
+        {/* Header */}
+        <div className="flex items-center justify-between px-8 py-6 md:px-12">
+          {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-md bg-[var(--ob-muted)]" />
-            <span className="text-sm font-semibold tracking-tight text-[var(--ob-text-secondary)]">
-              Precurion
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="text-[var(--ob-text)]">
+              <path d="M12 2C8 6 4 9 4 13c0 4.4 3.6 8 8 8s8-3.6 8-8c0-4-4-7-8-11z"
+                fill="currentColor" fillOpacity="0.9"/>
+              <path d="M12 8c-2 2-4 3.5-4 6 0 2.2 1.8 4 4 4s4-1.8 4-4c0-2.5-2-4-4-6z"
+                fill="currentColor" fillOpacity="0.3"/>
+            </svg>
+          </div>
+
+          {/* Center: Progress indicator */}
+          <div className="absolute left-1/4 top-6 flex items-center gap-3 md:relative md:left-0 md:top-0">
+            <ProgressIndicator currentStep={currentStep} totalSteps={4} isDark={isDark} />
+            <span className="text-sm font-medium text-[var(--ob-text-muted)]">
+              {currentStep}/4
             </span>
           </div>
+
+          {/* Theme toggle */}
           <button
             onClick={() => setIsDark((prev) => !prev)}
-            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors bg-[var(--ob-muted)] text-[var(--ob-text-secondary)] hover:text-[var(--ob-text)]"
+            className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-[var(--ob-muted)] text-[var(--ob-text-tertiary)] hover:text-[var(--ob-text)]"
             aria-label="Toggle theme"
           >
-            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </div>
 
         {/* Form content */}
-        <div className="flex flex-1 flex-col justify-center py-12">
-          <AnimatePresence mode="wait">
-            {currentStep === 1 && (
-              <StepProfile
-                key="step-1"
-                name={formData.name}
-                companyName={formData.companyName}
-                email={formData.email}
-                onFieldChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
-                onNext={(data) => {
-                  setFormData((prev) => ({ ...prev, ...data }))
-                  setCurrentStep(2)
-                }}
-              />
-            )}
-            {currentStep === 2 && (
-              <StepWorkspace
-                key="step-2"
-                workspaceName={formData.workspaceName}
-                inviteEmails={formData.inviteEmails}
-                onFieldChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
-                onNext={(data) => {
-                  setFormData((prev) => ({ ...prev, ...data }))
-                  setCurrentStep(3)
-                }}
-              />
-            )}
-            {currentStep === 3 && (
-              <StepAssistant
-                key="step-3"
-                assistantName={formData.assistantName}
-                calendarAccess={formData.calendarAccess}
-                emailAccess={formData.emailAccess}
-                onAssistantNameChange={handleAssistantNameChange}
-                onFieldChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
-                onNext={(data) => {
-                  setFormData((prev) => ({ ...prev, ...data }))
-                  setCurrentStep(4)
-                }}
-              />
-            )}
-            {currentStep === 4 && (
-              <StepComplete
-                key="step-4"
-                assistantName={formData.assistantName}
-                onProcessingStart={handleProcessingStart}
-                onComplete={handleComplete}
-              />
-            )}
-          </AnimatePresence>
+        <div className="flex flex-1 flex-col justify-center px-8 md:px-12 lg:px-16 xl:px-24">
+          <div className="w-full max-w-md">
+            <AnimatePresence mode="wait">
+              {currentStep === 1 && (
+                <StepProfile
+                  key="step-1"
+                  name={formData.name}
+                  companyName={formData.companyName}
+                  email={formData.email}
+                  onFieldChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
+                  onNext={(data) => {
+                    setFormData((prev) => ({ ...prev, ...data }))
+                    setCurrentStep(2)
+                  }}
+                />
+              )}
+              {currentStep === 2 && (
+                <StepWorkspace
+                  key="step-2"
+                  workspaceName={formData.workspaceName}
+                  inviteEmails={formData.inviteEmails}
+                  onFieldChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
+                  onNext={(data) => {
+                    setFormData((prev) => ({ ...prev, ...data }))
+                    setCurrentStep(3)
+                  }}
+                  onBack={() => setCurrentStep(1)}
+                />
+              )}
+              {currentStep === 3 && (
+                <StepAssistant
+                  key="step-3"
+                  assistantName={formData.assistantName}
+                  calendarAccess={formData.calendarAccess}
+                  emailAccess={formData.emailAccess}
+                  onAssistantNameChange={handleAssistantNameChange}
+                  onFieldChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
+                  onNext={(data) => {
+                    setFormData((prev) => ({ ...prev, ...data }))
+                    setCurrentStep(4)
+                  }}
+                  onBack={() => setCurrentStep(2)}
+                />
+              )}
+              {currentStep === 4 && (
+                <StepComplete
+                  key="step-4"
+                  assistantName={formData.assistantName}
+                  onProcessingStart={handleProcessingStart}
+                  onComplete={handleComplete}
+                />
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* Progress indicator */}
-        <div className="flex items-center justify-between">
-          <ProgressIndicator currentStep={currentStep} totalSteps={4} isDark={isDark} />
-          <span className="text-xs text-[var(--ob-text-muted)]">
-            Step {currentStep} of 4
-          </span>
+        {/* Footer */}
+        <div className="flex items-end justify-between px-8 py-6 md:px-12">
+          <p className="text-xs text-[var(--ob-text-muted)] leading-relaxed max-w-[180px]">
+            The single platform to iterate,<br />
+            evaluate, deploy, and monitor LLMs
+          </p>
         </div>
       </div>
 
-      {/* RIGHT PANEL — Three.js */}
-      <div className="relative hidden flex-1 md:block">
-        {/* Subtle border on left edge */}
-        <div className="absolute inset-y-0 left-0 z-10 w-px bg-[var(--ob-border)]" />
+      {/* RIGHT PANEL — Three.js (50% width) */}
+      <div className="relative hidden flex-1 md:block md:w-1/2">
         <ThreeBackground
           onboardingStep={currentStep}
           assistantName={formData.assistantName}

@@ -9,12 +9,12 @@ interface ProgressIndicatorProps {
 }
 
 export function ProgressIndicator({ currentStep, totalSteps, isDark }: ProgressIndicatorProps) {
-  const activeColor = isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.9)"
-  const completedColor = isDark ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.4)"
-  const inactiveColor = isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.1)"
+  const activeColor = isDark ? "rgba(255, 255, 255, 0.9)" : "#1a1a1a"
+  const completedColor = isDark ? "rgba(255, 255, 255, 0.5)" : "#6b7280"
+  const inactiveColor = isDark ? "rgba(255, 255, 255, 0.2)" : "#d1d5db"
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       {Array.from({ length: totalSteps }, (_, i) => {
         const step = i + 1
         const isActive = step === currentStep
@@ -23,23 +23,14 @@ export function ProgressIndicator({ currentStep, totalSteps, isDark }: ProgressI
         return (
           <motion.div
             key={step}
-            className="relative flex items-center justify-center"
-            initial={false}
-          >
-            <motion.div
-              className="rounded-full"
-              animate={{
-                width: isActive ? 32 : 8,
-                height: 8,
-                backgroundColor: isActive
-                  ? activeColor
-                  : isCompleted
-                    ? completedColor
-                    : inactiveColor,
-              }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            />
-          </motion.div>
+            className="h-[3px] w-5 rounded-full"
+            animate={{
+              backgroundColor: isActive || isCompleted
+                ? (isActive ? activeColor : completedColor)
+                : inactiveColor,
+            }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          />
         )
       })}
     </div>

@@ -44,18 +44,25 @@ const createGlowTexture = (): THREE.Texture => {
   const t = new THREE.CanvasTexture(c); t.needsUpdate = true; return t
 }
 
-// Generate Fibonacci sphere positions for ALL particles (final convergence)
+// Generate volumetric sphere positions (particles distributed throughout the volume, not just surface)
 function generateFinalSphere(count: number, radius: number): { x: number; y: number; z: number }[] {
   const points: { x: number; y: number; z: number }[] = []
   const goldenAngle = Math.PI * (3 - Math.sqrt(5))
+
   for (let i = 0; i < count; i++) {
-    const y = 1 - (i / (count - 1)) * 2
+    // Use cube root for uniform volume distribution (not just surface)
+    const t = i / (count - 1)
+    const r = Math.cbrt(0.15 + t * 0.85) * radius // Range from 15% to 100% of radius
+
+    // Fibonacci-like angular distribution
+    const y = 1 - (i / (count - 1)) * 2 // -1 to 1
     const radiusAtY = Math.sqrt(1 - y * y)
     const theta = goldenAngle * i
+
     points.push({
-      x: Math.cos(theta) * radiusAtY * radius,
-      y: y * radius,
-      z: Math.sin(theta) * radiusAtY * radius,
+      x: Math.cos(theta) * radiusAtY * r,
+      y: y * r,
+      z: Math.sin(theta) * radiusAtY * r,
     })
   }
   return points
@@ -185,6 +192,9 @@ function Particles({
     () => generateFinalSphere(PARTICLE_CONFIG.particleCount, 65),
     []
   )
+
+  // Line-to-circle transition tracking
+  const lineToCircleProgressRef = useRef(0)
 
   // Init morph target buffers
   useEffect(() => {
@@ -541,6 +551,13 @@ function Particles({
     }
 
     // -------------------------------------------------------------------
+    // LINE-TO-CIRCLE TRANSITION (Step 1 = line, Step 2+ = circle)
+    // -------------------------------------------------------------------
+    const lineToCircleTarget = onboardingStep >= 2 ? 1 : 0
+    lineToCircleProgressRef.current += (lineToCircleTarget - lineToCircleProgressRef.current) * 0.02
+    const lineToCircle = lineToCircleProgressRef.current
+
+    // -------------------------------------------------------------------
     // RENDER PARTICLES
     // -------------------------------------------------------------------
     const sizesArr = pointsRef.current.geometry.attributes.size.array as Float32Array
@@ -550,6 +567,9 @@ function Particles({
     const wanderMult = stepConfig.wanderAmplitudeMultiplier
     // Progress pulse adds a gentle breathe kick
     const pulseKick = progressPulseRef.current * 3
+
+    // Line parameters - like a string tied at both ends, loose in the middle
+    const lineWidth = 400 // Total width of the line
 
     for (let i = 0; i < PARTICLE_CONFIG.particleCount; i++) {
       const p = particlesData[i]
@@ -567,12 +587,55 @@ function Particles({
       }
 
       const pRadius = currentRadius[i] + breatheOff + wanderOffset + pulseKick
+
+      // ---------------------------------------------------------------
+      // STEP 1: Organic diverging lines - tightly tied at corners
+      // Particles drift in and out for organic feel
+      // ---------------------------------------------------------------
+      const numStrands = 5
+      const strandIndex = i % numStrands
+      const strandT = Math.floor(i / numStrands) / Math.floor(PARTICLE_CONFIG.particleCount / numStrands)
+
+      const lineX = (strandT - 0.5) * lineWidth
+
+      // Tighter envelope - more aggressively tied at corners
+      // Using power of 2 makes edges much tighter
+      const rawEnvelope = Math.sin(strandT * Math.PI)
+      const envelope = rawEnvelope * rawEnvelope // Squared for tighter corners
+
+      // Strand vertical spread in the center
+      const strandSpread = 20
+      const strandOffset = (strandIndex - (numStrands - 1) / 2) * strandSpread * envelope
+
+      // Multiple overlapping waves for spontaneous motion
+      const strandSeed = strandIndex * 137.5 // Golden angle for variety
+      const wave1 = Math.sin(strandT * Math.PI * 4 + elapsed * (0.7 + strandIndex * 0.2) + strandSeed) * 10
+      const wave2 = Math.sin(strandT * Math.PI * 7 + elapsed * (1.1 + strandIndex * 0.15) + strandSeed * 0.7) * 5
+      const wave3 = Math.sin(strandT * Math.PI * 11 + elapsed * (0.5 + strandIndex * 0.25) + p.breatheOffset) * 3
+
+      // Particle escape - some particles drift away and return
+      // Uses particle's unique properties for organic randomness
+      const escapePhase = p.breatheOffset + elapsed * p.wanderSpeed * 2
+      const escapeAmount = Math.sin(escapePhase) * Math.sin(escapePhase * 0.37) // Irregular timing
+      const escapeDist = p.wanderAmplitude * 0.8 * escapeAmount * envelope
+      const escapeAngle = p.breatheOffset * 3 + elapsed * 0.3
+
+      // Combine everything
+      const baseY = strandOffset + (wave1 + wave2 + wave3) * envelope
+      const lineY = baseY + Math.sin(escapeAngle) * escapeDist
+      const lineZ = Math.cos(escapeAngle) * escapeDist + Math.sin(p.breatheOffset + elapsed * 0.3 + strandIndex) * 3 * envelope
+
+      // ---------------------------------------------------------------
+      // STEP 2+: Circle
+      // ---------------------------------------------------------------
       const circleX = Math.cos(curAngle) * pRadius
       const circleY = Math.sin(curAngle) * pRadius
 
-      let finalX = circleX
-      let finalY = circleY
-      let finalZ = 0
+      // Blend between line and circle
+      const easedTransition = 1 - Math.pow(1 - lineToCircle, 3) // Ease out cubic
+      let finalX = lineX + (circleX - lineX) * easedTransition
+      let finalY = lineY + (circleY - lineY) * easedTransition
+      let finalZ = lineZ * (1 - easedTransition)
 
       // ---------------------------------------------------------------
       // INNER SHAPE CONVERGENCE (naming the assistant)

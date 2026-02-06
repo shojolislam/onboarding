@@ -28,42 +28,48 @@ body {
   --ob-text: rgba(255, 255, 255, 0.9);
   --ob-text-secondary: rgba(255, 255, 255, 0.7);
   --ob-text-tertiary: rgba(255, 255, 255, 0.5);
-  --ob-text-muted: rgba(255, 255, 255, 0.25);
-  --ob-border: rgba(255, 255, 255, 0.08);
+  --ob-text-muted: rgba(255, 255, 255, 0.35);
+  --ob-border: rgba(255, 255, 255, 0.12);
   --ob-muted: rgba(255, 255, 255, 0.1);
   --ob-muted-hover: rgba(255, 255, 255, 0.15);
-  --ob-surface: rgba(255, 255, 255, 0.03);
-  --ob-surface-hover: rgba(255, 255, 255, 0.06);
-  --ob-toggle-active: rgba(255, 255, 255, 0.3);
-  --ob-input-bg: rgba(255, 255, 255, 0.04);
-  --ob-input-bg-focus: rgba(255, 255, 255, 0.06);
-  --ob-input-border: rgba(255, 255, 255, 0.08);
-  --ob-input-border-focus: rgba(255, 255, 255, 0.2);
+  --ob-surface: rgba(255, 255, 255, 0.05);
+  --ob-surface-hover: rgba(255, 255, 255, 0.08);
+  --ob-toggle-active: #4ade80;
+  --ob-input-bg: rgba(255, 255, 255, 0.05);
+  --ob-input-bg-focus: rgba(255, 255, 255, 0.08);
+  --ob-input-border: rgba(255, 255, 255, 0.15);
+  --ob-input-border-focus: #4ade80;
   --ob-input-text: rgba(255, 255, 255, 0.9);
-  --ob-input-placeholder: rgba(255, 255, 255, 0.2);
+  --ob-input-placeholder: rgba(255, 255, 255, 0.3);
+  --ob-btn-primary-bg: #4ade80;
+  --ob-btn-primary-bg-hover: #22c55e;
+  --ob-btn-primary-text: #0a0a0a;
   --ob-btn-bg: rgba(255, 255, 255, 0.9);
   --ob-btn-bg-hover: rgba(255, 255, 255, 1);
   --ob-btn-text: #0a0a0a;
 }
 
 [data-theme="light"] {
-  --ob-bg: #ffffff;
-  --ob-text: rgba(0, 0, 0, 0.9);
-  --ob-text-secondary: rgba(0, 0, 0, 0.65);
-  --ob-text-tertiary: rgba(0, 0, 0, 0.45);
-  --ob-text-muted: rgba(0, 0, 0, 0.25);
-  --ob-border: rgba(0, 0, 0, 0.08);
-  --ob-muted: rgba(0, 0, 0, 0.06);
-  --ob-muted-hover: rgba(0, 0, 0, 0.1);
-  --ob-surface: rgba(0, 0, 0, 0.02);
-  --ob-surface-hover: rgba(0, 0, 0, 0.05);
-  --ob-toggle-active: rgba(0, 0, 0, 0.25);
-  --ob-input-bg: rgba(0, 0, 0, 0.03);
-  --ob-input-bg-focus: rgba(0, 0, 0, 0.05);
-  --ob-input-border: rgba(0, 0, 0, 0.1);
-  --ob-input-border-focus: rgba(0, 0, 0, 0.2);
-  --ob-input-text: rgba(0, 0, 0, 0.9);
-  --ob-input-placeholder: rgba(0, 0, 0, 0.3);
+  --ob-bg: #f7f6f3;
+  --ob-text: #1a1a1a;
+  --ob-text-secondary: #374151;
+  --ob-text-tertiary: #6b7280;
+  --ob-text-muted: #9ca3af;
+  --ob-border: #e5e5e5;
+  --ob-muted: #f0f0ed;
+  --ob-muted-hover: #e8e8e5;
+  --ob-surface: #ffffff;
+  --ob-surface-hover: #fafafa;
+  --ob-toggle-active: #3d6b4f;
+  --ob-input-bg: #ffffff;
+  --ob-input-bg-focus: #ffffff;
+  --ob-input-border: #d1d5db;
+  --ob-input-border-focus: #3d6b4f;
+  --ob-input-text: #1a1a1a;
+  --ob-input-placeholder: #9ca3af;
+  --ob-btn-primary-bg: #3d6b4f;
+  --ob-btn-primary-bg-hover: #345a43;
+  --ob-btn-primary-text: #ffffff;
   --ob-btn-bg: rgba(0, 0, 0, 0.9);
   --ob-btn-bg-hover: rgba(0, 0, 0, 1);
   --ob-btn-text: #ffffff;
@@ -84,15 +90,15 @@ body {
 
 .onboarding-input {
   width: 100%;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
   border: 1px solid var(--ob-input-border);
   background: var(--ob-input-bg);
   color: var(--ob-input-text);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
   outline: none;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .onboarding-input::placeholder {
@@ -101,33 +107,50 @@ body {
 
 .onboarding-input:focus {
   border-color: var(--ob-input-border-focus);
-  background: var(--ob-input-bg-focus);
+  box-shadow: 0 0 0 3px rgba(61, 107, 79, 0.1);
 }
 
 .onboarding-button {
   width: 100%;
-  padding: 10px 20px;
-  border-radius: 10px;
+  padding: 12px 24px;
+  border-radius: 8px;
   border: none;
-  background: var(--ob-btn-bg);
-  color: var(--ob-btn-text);
-  font-size: 14px;
+  background: var(--ob-btn-primary-bg);
+  color: var(--ob-btn-primary-text);
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
 .onboarding-button:hover {
-  background: var(--ob-btn-bg-hover);
+  background: var(--ob-btn-primary-bg-hover);
 }
 
 .onboarding-button:disabled {
-  opacity: 0.3;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .onboarding-button:disabled:hover {
-  background: var(--ob-btn-bg);
+  background: var(--ob-btn-primary-bg);
+}
+
+/* Secondary/Back button */
+.onboarding-button-secondary {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--ob-text);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.onboarding-button-secondary:hover {
+  color: var(--ob-text-secondary);
 }
 
 /* Custom scrollbar */

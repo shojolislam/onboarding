@@ -36,25 +36,27 @@ export function StepProfile({ name: initialName, companyName: initialCompany, em
   return (
     <motion.form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-8"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3 }}
     >
+      {/* Header */}
       <div>
+        <p className="text-sm font-medium text-[var(--ob-text-muted)] mb-2">
+          Your Profile
+        </p>
         <h2 className="text-2xl font-semibold tracking-tight text-[var(--ob-text)]">
           Tell us about yourself
         </h2>
-        <p className="mt-2 text-sm text-[var(--ob-text-tertiary)]">
-          We&apos;ll use this to personalize your experience.
-        </p>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="name" className="text-xs font-medium uppercase tracking-wider text-[var(--ob-text-muted)]">
-            Name
+      {/* Form fields */}
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="name" className="text-sm font-medium text-[var(--ob-text)]">
+            Name <span className="text-[var(--ob-text-muted)]">*</span>
           </label>
           <input
             id="name"
@@ -67,9 +69,9 @@ export function StepProfile({ name: initialName, companyName: initialCompany, em
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="companyName" className="text-xs font-medium uppercase tracking-wider text-[var(--ob-text-muted)]">
-            Company Name
+        <div className="flex flex-col gap-2">
+          <label htmlFor="companyName" className="text-sm font-medium text-[var(--ob-text)]">
+            Company name <span className="text-[var(--ob-text-muted)]">*</span>
           </label>
           <input
             id="companyName"
@@ -81,8 +83,8 @@ export function StepProfile({ name: initialName, companyName: initialCompany, em
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-[var(--ob-text-muted)]">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="email" className="text-sm font-medium text-[var(--ob-text)]">
             Email
           </label>
           <input
@@ -90,17 +92,18 @@ export function StepProfile({ name: initialName, companyName: initialCompany, em
             type="email"
             value={email}
             readOnly
-            className="onboarding-input opacity-50 cursor-not-allowed"
+            className="onboarding-input opacity-60 cursor-not-allowed"
           />
         </div>
       </div>
 
+      {/* Button */}
       <button
         type="submit"
         disabled={!canProceed}
-        className="onboarding-button mt-2"
+        className="onboarding-button mt-4"
       >
-        Next
+        Continue
       </button>
     </motion.form>
   )

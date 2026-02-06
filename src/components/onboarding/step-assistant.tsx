@@ -10,6 +10,7 @@ interface StepAssistantProps {
   onNext: (data: { assistantName: string; calendarAccess: boolean; emailAccess: boolean }) => void
   onAssistantNameChange: (name: string) => void
   onFieldChange?: (data: { calendarAccess: boolean; emailAccess: boolean }) => void
+  onBack?: () => void
 }
 
 function Toggle({
@@ -27,19 +28,21 @@ function Toggle({
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="flex items-center justify-between rounded-lg border border-[var(--ob-border)] bg-[var(--ob-surface)] px-4 py-3 transition-colors hover:bg-[var(--ob-surface-hover)]"
+      className="flex items-center justify-between rounded-lg border border-[var(--ob-border)] bg-[var(--ob-surface)] px-4 py-4 transition-colors hover:bg-[var(--ob-surface-hover)] text-left"
     >
-      <div className="flex flex-col items-start">
-        <span className="text-sm font-medium text-[var(--ob-text-secondary)]">{label}</span>
-        <span className="text-xs text-[var(--ob-text-muted)]">{description}</span>
+      <div className="flex flex-col items-start gap-0.5">
+        <span className="text-sm font-medium text-[var(--ob-text)]">{label}</span>
+        <span className="text-sm text-[var(--ob-text-tertiary)]">{description}</span>
       </div>
       <div
-        className={`relative h-6 w-11 rounded-full transition-colors ${
-          checked ? "bg-[var(--ob-toggle-active)]" : "bg-[var(--ob-muted)]"
+        className={`relative h-6 w-11 rounded-full transition-colors shrink-0 ml-4 ${
+          checked ? "bg-[var(--ob-toggle-active)]" : "bg-[var(--ob-border)]"
         }`}
       >
         <motion.div
-          className="absolute top-1 h-4 w-4 rounded-full bg-[var(--ob-text)]"
+          className={`absolute top-1 h-4 w-4 rounded-full transition-colors ${
+            checked ? "bg-white" : "bg-[var(--ob-text-muted)]"
+          }`}
           animate={{ left: checked ? 22 : 4 }}
           transition={{ type: "spring", stiffness: 500, damping: 30 }}
         />
@@ -55,6 +58,7 @@ export function StepAssistant({
   onNext,
   onAssistantNameChange,
   onFieldChange,
+  onBack,
 }: StepAssistantProps) {
   const [assistantName, setAssistantName] = useState(initialName)
   const [calendarAccess, setCalendarAccess] = useState(initialCalendar)
@@ -81,25 +85,27 @@ export function StepAssistant({
   return (
     <motion.form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-8"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3 }}
     >
+      {/* Header */}
       <div>
+        <p className="text-sm font-medium text-[var(--ob-text-muted)] mb-2">
+          Your Assistant
+        </p>
         <h2 className="text-2xl font-semibold tracking-tight text-[var(--ob-text)]">
           Name your assistant
         </h2>
-        <p className="mt-2 text-sm text-[var(--ob-text-tertiary)]">
-          Give your AI assistant an identity and grant it access to your tools.
-        </p>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="assistantName" className="text-xs font-medium uppercase tracking-wider text-[var(--ob-text-muted)]">
-            Assistant Name
+      {/* Form fields */}
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="assistantName" className="text-sm font-medium text-[var(--ob-text)]">
+            Assistant name <span className="text-[var(--ob-text-muted)]">*</span>
           </label>
           <input
             id="assistantName"
@@ -113,7 +119,7 @@ export function StepAssistant({
         </div>
 
         <div className="flex flex-col gap-3">
-          <span className="text-xs font-medium uppercase tracking-wider text-[var(--ob-text-muted)]">
+          <span className="text-sm font-medium text-[var(--ob-text)]">
             Permissions
           </span>
           <Toggle
@@ -137,13 +143,25 @@ export function StepAssistant({
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={!canProceed}
-        className="onboarding-button mt-2"
-      >
-        Continue
-      </button>
+      {/* Buttons */}
+      <div className="flex items-center gap-4 mt-4">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="onboarding-button-secondary"
+          >
+            Back
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={!canProceed}
+          className="onboarding-button flex-1"
+        >
+          Continue
+        </button>
+      </div>
     </motion.form>
   )
 }
