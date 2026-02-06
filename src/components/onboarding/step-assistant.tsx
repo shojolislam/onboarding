@@ -14,54 +14,15 @@ interface StepAssistantProps {
   onBack?: () => void
 }
 
-function Toggle({
-  checked,
-  onChange,
-  label,
-  description,
-}: {
-  checked: boolean
-  onChange: (val: boolean) => void
-  label: string
-  description: string
-}) {
-  return (
-    <button
-      type="button"
-      onClick={() => onChange(!checked)}
-      className="flex items-center justify-between py-4 transition-colors text-left group"
-    >
-      <div className="flex flex-col items-start gap-0.5">
-        <span className="text-xl font-light text-[var(--ob-text)]">{label}</span>
-        <span className="text-sm text-[var(--ob-text-tertiary)]">{description}</span>
-      </div>
-      <div
-        className={`relative h-7 w-12 rounded-full transition-colors shrink-0 ml-4 ${
-          checked ? "bg-[var(--ob-btn-primary-bg)]" : "bg-[var(--ob-border)]"
-        }`}
-      >
-        <motion.div
-          className="absolute top-1 h-5 w-5 rounded-full bg-white shadow-sm"
-          animate={{ left: checked ? 24 : 4 }}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        />
-      </div>
-    </button>
-  )
-}
-
 export function StepAssistant({
   assistantName: initialName,
-  calendarAccess: initialCalendar,
-  emailAccess: initialEmail,
+  calendarAccess,
+  emailAccess,
   onNext,
   onAssistantNameChange,
-  onFieldChange,
   onBack,
 }: StepAssistantProps) {
   const [assistantName, setAssistantName] = useState(initialName)
-  const [calendarAccess, setCalendarAccess] = useState(initialCalendar)
-  const [emailAccess, setEmailAccess] = useState(initialEmail)
   const [displayedText, setDisplayedText] = useState("")
   const fullText = "Name your assistant"
 
@@ -96,53 +57,30 @@ export function StepAssistant({
   return (
     <motion.form
       onSubmit={handleSubmit}
-      className="flex flex-col items-start gap-10 font-[family-name:var(--font-geist-sans)]"
+      className="flex flex-col gap-3 font-[family-name:var(--font-geist-sans)]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Typewriter Title */}
-      <h2 className="text-5xl font-light tracking-tight text-[var(--ob-text)]">
+      {/* Typewriter Title - smaller, mono */}
+      <h2 className="font-[family-name:var(--font-geist-mono)] text-2xl tracking-tight text-[var(--ob-text)]">
         {displayedText}
       </h2>
 
-      {/* Form fields */}
-      <div className="w-full flex flex-col gap-8">
-        <input
-          type="text"
-          value={assistantName}
-          onChange={(e) => handleNameChange(e.target.value)}
-          placeholder="e.g. Atlas, Nova, Cortex"
-          className="w-full bg-transparent border-none outline-none text-4xl font-light text-[var(--ob-text)] placeholder:text-[var(--ob-text-muted)] py-4"
-          autoFocus
-        />
+      {/* Large input */}
+      <input
+        type="text"
+        value={assistantName}
+        onChange={(e) => handleNameChange(e.target.value)}
+        placeholder="e.g. Atlas, Nova, Cortex"
+        className="w-full bg-transparent border-none outline-none text-5xl font-light text-[var(--ob-text)] placeholder:text-[var(--ob-text-muted)] py-4"
+        autoFocus
+      />
 
-        <div className="flex flex-col divide-y divide-[var(--ob-border)]">
-          <Toggle
-            checked={calendarAccess}
-            onChange={(val) => {
-              setCalendarAccess(val)
-              onFieldChange?.({ calendarAccess: val, emailAccess })
-            }}
-            label="Calendar Access"
-            description="Schedule meetings and check availability"
-          />
-          <Toggle
-            checked={emailAccess}
-            onChange={(val) => {
-              setEmailAccess(val)
-              onFieldChange?.({ calendarAccess, emailAccess: val })
-            }}
-            label="Email Access"
-            description="Read and draft emails on your behalf"
-          />
-        </div>
-      </div>
-
-      {/* Navigation buttons */}
-      <div className="flex items-center gap-4">
-        {onBack && (
+      {/* Navigation - left arrow on left, right arrow on far right */}
+      <div className="flex justify-between mt-6">
+        {onBack ? (
           <button
             type="button"
             onClick={onBack}
@@ -150,6 +88,8 @@ export function StepAssistant({
           >
             <ArrowLeft size={24} />
           </button>
+        ) : (
+          <div />
         )}
         <motion.button
           type="submit"

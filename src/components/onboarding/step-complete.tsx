@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Check } from "lucide-react"
+import { ArrowRight, Check } from "lucide-react"
 
 interface StepCompleteProps {
   assistantName: string
@@ -10,139 +10,158 @@ interface StepCompleteProps {
   onComplete: () => void
 }
 
-const PROCESSING_STEPS = [
-  "Configuring workspace...",
-  "Setting up permissions...",
-  "Training assistant...",
-  "Finalizing setup...",
+const setupTasks = [
+  "Creating your workspace",
+  "Configuring permissions",
+  "Training your assistant",
+  "Finalizing setup",
 ]
 
 export function StepComplete({ assistantName, onProcessingStart, onComplete }: StepCompleteProps) {
-  const [processingStep, setProcessingStep] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
+  const [completedTasks, setCompletedTasks] = useState<number[]>([])
+  const [displayedText, setDisplayedText] = useState("")
+
+  const processingText = "Setting up..."
+  const completeText = "Your workspace is ready"
+  const fullText = isComplete ? completeText : processingText
+
+  // Typewriter effect
+  useEffect(() => {
+    setDisplayedText("")
+  }, [isComplete])
+
+  useEffect(() => {
+    if (displayedText.length < fullText.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(fullText.slice(0, displayedText.length + 1))
+      }, 50)
+      return () => clearTimeout(timeout)
+    }
+  }, [displayedText, fullText])
 
   useEffect(() => {
     onProcessingStart()
 
-    const timers: NodeJS.Timeout[] = []
-
-    PROCESSING_STEPS.forEach((_, i) => {
-      timers.push(
-        setTimeout(() => {
-          setProcessingStep(i + 1)
-        }, (i + 1) * 1200)
-      )
+    // Simulate task completion
+    const taskTimers: NodeJS.Timeout[] = []
+    setupTasks.forEach((_, index) => {
+      const timer = setTimeout(() => {
+        setCompletedTasks(prev => [...prev, index])
+      }, 600 + index * 600)
+      taskTimers.push(timer)
     })
 
-    timers.push(
-      setTimeout(() => {
-        setIsComplete(true)
-        onComplete()
-      }, PROCESSING_STEPS.length * 1200 + 800)
-    )
+    // Complete after all tasks
+    const completeTimer = setTimeout(() => {
+      setIsComplete(true)
+      onComplete()
+    }, 600 + setupTasks.length * 600 + 400)
 
-    return () => timers.forEach(clearTimeout)
+    return () => {
+      taskTimers.forEach(clearTimeout)
+      clearTimeout(completeTimer)
+    }
   }, [onProcessingStart, onComplete])
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-center gap-8 text-center"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
+      className="flex flex-col items-center text-center font-[family-name:var(--font-geist-sans)] -mt-16 pb-24"
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
       <AnimatePresence mode="wait">
         {!isComplete ? (
           <motion.div
             key="processing"
             className="flex flex-col items-center gap-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.5 }}
           >
-            {/* Spinner */}
-            <div className="relative h-12 w-12">
-              <motion.div
-                className="absolute inset-0 rounded-full border-2 border-[var(--ob-border)]"
-              />
-              <motion.div
-                className="absolute inset-0 rounded-full border-2 border-transparent border-t-[var(--ob-text-secondary)]"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              />
-            </div>
+            {/* Title */}
+            <h2 className="font-[family-name:var(--font-geist-mono)] text-5xl font-light tracking-tight text-[var(--ob-text)]">
+              {displayedText}
+            </h2>
 
-            <div className="flex flex-col gap-3">
-              <h2 className="text-xl font-semibold tracking-tight text-[var(--ob-text)]">
-                Setting up {assistantName}
-              </h2>
-              <div className="flex flex-col gap-2">
-                {PROCESSING_STEPS.map((step, i) => (
-                  <motion.div
-                    key={step}
-                    className="flex items-center gap-2 text-sm"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={
-                      processingStep > i
-                        ? { opacity: 1, x: 0 }
-                        : processingStep === i
-                          ? { opacity: 0.5, x: 0 }
-                          : { opacity: 0.2, x: 0 }
-                    }
-                    transition={{ duration: 0.3 }}
-                  >
-                    {processingStep > i ? (
-                      <Check size={14} className="text-green-400" />
-                    ) : (
-                      <div className="h-3.5 w-3.5" />
+            {/* Checklist */}
+            <div className="flex flex-col gap-3 w-full max-w-sm mt-4">
+              {setupTasks.map((task, index) => (
+                <motion.div
+                  key={task}
+                  className="flex items-center gap-3 text-left"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <div className={`flex h-5 w-5 items-center justify-center rounded-full transition-colors ${
+                    completedTasks.includes(index)
+                      ? "bg-[var(--ob-btn-primary-bg)]"
+                      : "border border-[var(--ob-border)]"
+                  }`}>
+                    {completedTasks.includes(index) && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      >
+                        <Check size={12} className="text-[var(--ob-btn-primary-text)]" />
+                      </motion.div>
                     )}
-                    <span className={processingStep > i ? "text-[var(--ob-text-tertiary)]" : "text-[var(--ob-text-muted)]"}>
-                      {step}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
+                  </div>
+                  <span className={`text-base transition-colors ${
+                    completedTasks.includes(index)
+                      ? "text-[var(--ob-text)]"
+                      : "text-[var(--ob-text-muted)]"
+                  }`}>
+                    {task}
+                  </span>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         ) : (
           <motion.div
             key="complete"
             className="flex flex-col items-center gap-6"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            {/* Success checkmark */}
-            <motion.div
-              className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--ob-muted)]"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-            >
-              <Check size={28} className="text-[var(--ob-text)]" />
-            </motion.div>
-
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-semibold tracking-tight text-[var(--ob-text)]">
-                {assistantName} is ready
-              </h2>
-              <p className="text-sm text-[var(--ob-text-tertiary)]">
-                Your workspace has been configured. Let&apos;s get started.
-              </p>
-            </div>
-
-            <motion.button
-              className="onboarding-button mt-4"
-              initial={{ opacity: 0, y: 10 }}
+            {/* Title - large */}
+            <motion.h2
+              className="font-[family-name:var(--font-geist-mono)] text-5xl font-light tracking-tight text-[var(--ob-text)]"
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+            >
+              {displayedText}
+            </motion.h2>
+
+            {/* Subtitle */}
+            <motion.p
+              className="text-xl font-light text-[var(--ob-text-tertiary)]"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+            >
+              {assistantName ? `${assistantName} is ready to help you.` : "Let's get started."}
+            </motion.p>
+
+            {/* Go to Dashboard - centered */}
+            <motion.button
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--ob-btn-primary-bg)] text-[var(--ob-btn-primary-text)] transition-colors hover:bg-[var(--ob-btn-primary-bg-hover)] mt-2"
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               onClick={() => {
                 // Navigate to dashboard or main app
               }}
             >
-              Go to Dashboard
+              <ArrowRight size={24} />
             </motion.button>
           </motion.div>
         )}

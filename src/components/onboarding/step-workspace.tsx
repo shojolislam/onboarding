@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { X, ArrowRight, ArrowLeft } from "lucide-react"
+import { ArrowRight, ArrowLeft } from "lucide-react"
 
 interface StepWorkspaceProps {
   workspaceName: string
@@ -14,15 +14,12 @@ interface StepWorkspaceProps {
 
 export function StepWorkspace({
   workspaceName: initialWorkspace,
-  inviteEmails: initialEmails,
+  inviteEmails,
   onNext,
   onFieldChange,
   onBack,
 }: StepWorkspaceProps) {
   const [workspaceName, setWorkspaceName] = useState(initialWorkspace)
-  const [inviteEmails, setInviteEmails] = useState<string[]>(initialEmails)
-  const [emailInput, setEmailInput] = useState("")
-  const [emailError, setEmailError] = useState("")
   const [displayedText, setDisplayedText] = useState("")
   const fullText = "Name your workspace"
 
@@ -38,42 +35,6 @@ export function StepWorkspace({
 
   const canProceed = workspaceName.trim().length > 0
 
-  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-
-  const addEmail = useCallback(() => {
-    const email = emailInput.trim()
-    if (!email) return
-
-    if (!isValidEmail(email)) {
-      setEmailError("Please enter a valid email address")
-      return
-    }
-
-    if (inviteEmails.includes(email)) {
-      setEmailError("This email has already been added")
-      return
-    }
-
-    const newEmails = [...inviteEmails, email]
-    setInviteEmails(newEmails)
-    setEmailInput("")
-    setEmailError("")
-    onFieldChange?.({ workspaceName, inviteEmails: newEmails })
-  }, [emailInput, inviteEmails, workspaceName, onFieldChange])
-
-  const removeEmail = (email: string) => {
-    const newEmails = inviteEmails.filter((e) => e !== email)
-    setInviteEmails(newEmails)
-    onFieldChange?.({ workspaceName, inviteEmails: newEmails })
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault()
-      addEmail()
-    }
-  }
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (canProceed) {
@@ -84,86 +45,33 @@ export function StepWorkspace({
   return (
     <motion.form
       onSubmit={handleSubmit}
-      className="flex flex-col items-start gap-10 font-[family-name:var(--font-geist-sans)]"
+      className="flex flex-col gap-3 font-[family-name:var(--font-geist-sans)]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Typewriter Title */}
-      <h2 className="text-5xl font-light tracking-tight text-[var(--ob-text)]">
+      {/* Typewriter Title - smaller, mono */}
+      <h2 className="font-[family-name:var(--font-geist-mono)] text-2xl tracking-tight text-[var(--ob-text)]">
         {displayedText}
       </h2>
 
-      {/* Minimal input */}
-      <div className="w-full flex flex-col gap-8">
-        <input
-          type="text"
-          value={workspaceName}
-          onChange={(e) => {
-            setWorkspaceName(e.target.value)
-            onFieldChange?.({ workspaceName: e.target.value, inviteEmails })
-          }}
-          placeholder="e.g. Acme Corp"
-          className="w-full bg-transparent border-none outline-none text-4xl font-light text-[var(--ob-text)] placeholder:text-[var(--ob-text-muted)] py-4"
-          autoFocus
-        />
+      {/* Large input */}
+      <input
+        type="text"
+        value={workspaceName}
+        onChange={(e) => {
+          setWorkspaceName(e.target.value)
+          onFieldChange?.({ workspaceName: e.target.value, inviteEmails })
+        }}
+        placeholder="e.g. Acme Corp"
+        className="w-full bg-transparent border-none outline-none text-5xl font-light text-[var(--ob-text)] placeholder:text-[var(--ob-text-muted)] py-4"
+        autoFocus
+      />
 
-        {/* Invite emails section */}
-        <div className="flex flex-col gap-3">
-          <span className="text-lg text-[var(--ob-text-tertiary)]">Invite team members (optional)</span>
-          <div className="flex gap-3">
-            <input
-              type="email"
-              value={emailInput}
-              onChange={(e) => {
-                setEmailInput(e.target.value)
-                setEmailError("")
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder="colleague@company.com"
-              className="flex-1 bg-transparent border-b border-[var(--ob-border)] outline-none text-xl font-light text-[var(--ob-text)] placeholder:text-[var(--ob-text-muted)] py-2 focus:border-[var(--ob-btn-primary-bg)] transition-colors"
-            />
-            <button
-              type="button"
-              onClick={addEmail}
-              className="px-4 py-2 text-sm font-medium text-[var(--ob-text)] hover:text-[var(--ob-btn-primary-bg)] transition-colors"
-            >
-              Add
-            </button>
-          </div>
-          {emailError && (
-            <p className="text-sm text-red-500">{emailError}</p>
-          )}
-
-          {inviteEmails.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {inviteEmails.map((email) => (
-                <motion.span
-                  key={email}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--ob-border)] px-3 py-1.5 text-sm text-[var(--ob-text-secondary)]"
-                >
-                  {email}
-                  <button
-                    type="button"
-                    onClick={() => removeEmail(email)}
-                    className="text-[var(--ob-text-muted)] transition-colors hover:text-[var(--ob-text)]"
-                  >
-                    <X size={14} />
-                  </button>
-                </motion.span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Navigation buttons */}
-      <div className="flex items-center gap-4">
-        {onBack && (
+      {/* Navigation - left arrow on left, right arrow on far right */}
+      <div className="flex justify-between mt-6">
+        {onBack ? (
           <button
             type="button"
             onClick={onBack}
@@ -171,6 +79,8 @@ export function StepWorkspace({
           >
             <ArrowLeft size={24} />
           </button>
+        ) : (
+          <div />
         )}
         <motion.button
           type="submit"

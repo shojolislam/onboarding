@@ -99,4 +99,26 @@ export const STEP_CONFIGS: Record<number, StepConfig> = {
     inwardBias: 0.3,
     wanderAmplitudeMultiplier: 1.8,     // more wanderers drifting out
   },
+  5: {
+    radius: 145,                        // medium circle for permissions step
+    breathe: 3.5,
+    orbitSpeedMultiplier: 1.0,
+    chargeRateMultiplier: 1.5,
+    maxSpikes: 3,
+    spikePowerMultiplier: 0.6,          // gentler spikes
+    cooldownMultiplier: 1.0,
+    inwardBias: 0.35,
+    wanderAmplitudeMultiplier: 1.2,
+  },
+  6: {
+    radius: 140,
+    breathe: 3,
+    orbitSpeedMultiplier: 0.8,
+    chargeRateMultiplier: 1.0,
+    maxSpikes: 2,
+    spikePowerMultiplier: 0.5,
+    cooldownMultiplier: 1.5,
+    inwardBias: 0.4,
+    wanderAmplitudeMultiplier: 1.0,
+  },
 }
